@@ -30,12 +30,12 @@ jobs:
         shell: bash
         run: |
           # /dev/sdb1  is mounted as /mnt - disk space needed for the podman build containers layers.
-          sudo mkdir -p /mnt/tmp
-          sudo chown 1001:127 /mnt/tmp
+          mkdir -p /mnt/tmp
+          chown 1001:127 /mnt/tmp
           
           cd ${GITHUB_WORKSPACE}
           mkdir output
-          sudo apt-get install podman -y
+          apt-get install podman -y
 
           # podman version applies bad ulimits default causing "too many open files" errors so we override ulimits.
           TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 \
