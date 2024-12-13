@@ -69,6 +69,10 @@ while [ $# -gt 1 ]; do
 done
 
 
+if [ $# -ne 1 ]; then
+    usage "Wrong number of arguments"
+fi
+
 # The conditional check for presence of the used scripts and files
 # is required because configure-vm.sh can be run as a standalone
 # script when bootstrapping the development environment
@@ -97,6 +101,10 @@ if grep -qE 'Red Hat Enterprise Linux.*Beta' /etc/redhat-release; then
     RHEL_BETA_VERSION=true
 fi
 
+OCP_PULL_SECRET=$1
+[ ! -e "${OCP_PULL_SECRET}" ] && usage "OpenShift pull secret file '${OCP_PULL_SECRET}' does not exist"
+OCP_PULL_SECRET=$(realpath "${OCP_PULL_SECRET}")
+[ ! -f "${OCP_PULL_SECRET}" ] && usage "OpenShift pull secret '${OCP_PULL_SECRET}' is not a regular file"
 
 echo -e "${USER}\tALL=(ALL)\tNOPASSWD: ALL" | sudo tee "/etc/sudoers.d/${USER}"
 
