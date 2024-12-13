@@ -18,7 +18,7 @@ on:
 jobs:
   build:
     name: build microshift upstream
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out microshift repository
         uses: actions/checkout@v3
@@ -30,12 +30,12 @@ jobs:
         shell: bash
         run: |
           # /dev/sdb1  is mounted as /mnt - disk space needed for the podman build containers layers.
-          sudo mkdir -p /mnt/tmp
-          sudo chown 1001:127 /mnt/tmp
+          mkdir -p /mnt/tmp
+          chown 1001:127 /mnt/tmp
           
           cd ${GITHUB_WORKSPACE}
           mkdir output
-          sudo apt-get install podman -y
+          apt-get install podman -y
 
           # podman version applies bad ulimits default causing "too many open files" errors so we override ulimits.
           TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 \
@@ -50,19 +50,19 @@ jobs:
           name: RPMs
           path: output/ 
 
-      - name: build Microshift image with sudo
+      - name: build Microshift image  
         if:  inputs.action == 'run-in-bootc-container'
         shell: bash
         run: |
           cd ${GITHUB_WORKSPACE}
-          sudo podman build --env WITH_FLANNEL=1 -f okd/src/microshift-okd-run.Containerfile -v $(pwd)/output/:/tmp/rpm-repo:z . -t microshift-okd
+          podman build --env WITH_FLANNEL=1 -f okd/src/microshift-okd-run.Containerfile -v $(pwd)/output/:/tmp/rpm-repo:z . -t microshift-okd
 
 
-      - name: run Microshift container with sudo
+      - name: run Microshift container  
         if:  inputs.action == 'run-in-bootc-container'
         shell: bash
         run: |
-          sudo podman run --privileged --rm --name microshift-okd -d microshift-okd
+          podman run --privileged --rm --name microshift-okd -d microshift-okd
           sleep 3
           # wait until everything is running
-          sudo podman exec -ti microshift-okd bash -c '/etc/greenboot/check/required.d/40_microshift_running_check.sh && oc get pods -A'
+          podman exec -ti microshift-okd bash -c '/etc/greenboot/check/required.d/40_microshift_running_check.sh && oc get pods -A'
