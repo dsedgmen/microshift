@@ -38,7 +38,7 @@ jobs:
           sudo apt-get install podman -y
 
           # podman version applies bad ulimits default causing "too many open files" errors so we override ulimits.
-          sudo TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 \
+          TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 \
                                        --build-arg OKD_VERSION_TAG=${{ inputs.okd-version }} \
                                        --env WITH_FLANNEL=1 \
                                        -f okd/src/microshift-okd-build-rpms.Containerfile \
