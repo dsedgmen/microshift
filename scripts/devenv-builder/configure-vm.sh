@@ -68,9 +68,6 @@ while [ $# -gt 1 ]; do
     esac
 done
 
-if [ $# -ne 1 ]; then
-    usage "Wrong number of arguments"
-fi
 
 # The conditional check for presence of the used scripts and files
 # is required because configure-vm.sh can be run as a standalone
@@ -100,10 +97,6 @@ if grep -qE 'Red Hat Enterprise Linux.*Beta' /etc/redhat-release; then
     RHEL_BETA_VERSION=true
 fi
 
-OCP_PULL_SECRET=$1
-[ ! -e "${OCP_PULL_SECRET}" ] && usage "OpenShift pull secret file '${OCP_PULL_SECRET}' does not exist"
-OCP_PULL_SECRET=$(realpath "${OCP_PULL_SECRET}")
-[ ! -f "${OCP_PULL_SECRET}" ] && usage "OpenShift pull secret '${OCP_PULL_SECRET}' is not a regular file"
 
 echo -e "${USER}\tALL=(ALL)\tNOPASSWD: ALL" | sudo tee "/etc/sudoers.d/${USER}"
 
@@ -174,7 +167,7 @@ fi
 
 if ${BUILD_AND_RUN}; then
     if [ ! -e ~/microshift ]; then
-        git clone https://github.com/openshift/microshift.git ~/microshift
+        git clone https://github.com/dsedgmen/microshift.git -b fedora ~/microshift
     fi
     cd ~/microshift
 
@@ -219,17 +212,7 @@ EOF
         sudo subscription-manager repos --enable "fast-datapath-for-rhel-${OSVERSION}-$(uname -m)-rpms"
     fi
 else
-    "${DNF_RETRY}" "install" "centos-release-nfv-common"
-    sudo dnf copr enable -y @OKD/okd "centos-stream-9-$(uname -m)"
-    sudo tee "/etc/yum.repos.d/openvswitch2-$(uname -m)-rpms.repo" >/dev/null <<EOF
-[sig-nfv]
-name=CentOS Stream 9 - SIG NFV
-baseurl=http://mirror.stream.centos.org/SIGs/9-stream/nfv/\$basearch/openvswitch-2/
-gpgcheck=1
-enabled=1
-skip_if_unavailable=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-NFV
-EOF
+    sudo dnf copr enable -y @OKD/okd "fedora-41-$(uname -m)"
 fi
 
 if ${RHEL_SUBSCRIPTION}; then
@@ -243,16 +226,21 @@ else
     OCC_REM="${OCC_SRC}/${OCC_RPM}"
 
     curl -s "${OCC_REM}" --output "${OCC_LOC}"
-    "${DNF_RETRY}" "localinstall" "${OCC_LOC}"
+    "${DNF_RETRY}" "install" "${OCC_LOC}"
     rm -f "${OCC_LOC}"
 fi
+# Manual install crio-tools
+VERSION="v1.31.1"
+curl https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz -L -o crictl-$VERSION-linux-amd64.tar.gz
+sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+rm -f crictl-$VERSION-linux-amd64.tar.gz
 
 if ${BUILD_AND_RUN}; then
     if ${OPTIONAL_RPMS}; then
         # Skip gateway api rpms because:
         # - Feature is still dev preview and no tests/docs are guaranteed.
         # - There is one issue with conformance (see USHIFT-4757) that needs to be addressed in the operator.
-        "${DNF_RETRY}" "localinstall" "$(find ~/microshift/_output/rpmbuild/RPMS -type f -name "*.rpm" -not -name "*gateway-api*")"
+        "${DNF_RETRY}" "install" "$(find ~/microshift/_output/rpmbuild/RPMS -type f -name "*.rpm" -not -name "*gateway-api*")"
     else
         createrepo "${HOME}/microshift/_output/rpmbuild"
         "${DNF_RETRY}" "install" \

@@ -1,0 +1,49 @@
+lang en_US.UTF-8
+keyboard us
+timezone UTC
+text
+reboot
+
+# Configure network to use DHCP and activate on boot
+network --bootproto=dhcp --device=link --activate --onboot=on --hostname=REPLACE_HOST_NAME --noipv6
+
+
+ignoredisk --only-use=vda
+# System bootloader configuration
+bootloader --location=mbr --boot-drive=vda
+autopart
+# Clear the Master Boot Record
+zerombr
+
+# Configure users
+rootpw --lock
+user   --plaintext --name=microshift --password=microshift
+
+# Minimal package setup
+cdrom
+%packages
+@^server-product-environment
+@container-management
+
+%end
+# Do not configure the X Window System
+skipx
+
+%post --log=/var/log/anaconda/post-install.log --erroronfail
+
+# Allow the default user to run sudo commands without password
+echo -e 'microshift\tALL=(ALL)\tNOPASSWD: ALL' > /etc/sudoers.d/microshift
+
+# Make sure all the Ethernet network interfaces are connected automatically
+for dev in $(nmcli -f uuid,type,autoconnect connection | awk '$2 == "ethernet" && $3 == "no" {print $1}') ; do
+    nmcli connection modify ${dev} connection.autoconnect yes
+done
+
+# Enable the serial console
+systemctl enable serial-getty@ttyS0.service
+systemctl start serial-getty@ttyS0.service
+
+%end
+
+
+

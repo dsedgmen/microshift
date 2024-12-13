@@ -143,12 +143,6 @@ function action_create {
             ${SSH_PASSWORD_OPTS} \
             "microshift@${ip}"
 
-    echo "VM online"
-
-    # Initialize RH subscription
-    echo "Checking subscription-manager..."
-    ssh -t "microshift@${ip}" "if ! sudo subscription-manager status; then sudo subscription-manager register --auto-attach; fi"
-
     echo "VM online at ${ip}"
 }
 

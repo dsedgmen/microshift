@@ -66,8 +66,9 @@ BuildRequires: golang
 
 # Temporarily relax cri-o and cri-tools version range between 1.31 and 1.33.
 # This needs to be fixed on 1.32 when both cri-o and cri-tools 1.32 is ready.
-Requires: cri-o >= 1.31.0, cri-o < 1.33.0
-Requires: cri-tools >= 1.31.0, cri-tools < 1.33.0
+#Requires: cri-o >= 1.31.0, cri-o < 1.33.0
+Requires: cri-o1.31
+#Requires: cri-tools >= 1.31.0, cri-tools < 1.33.0
 Requires: iptables
 Requires: microshift-selinux = %{version}
 Requires: microshift-networking = %{version}

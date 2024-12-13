@@ -45,7 +45,7 @@ MICROSHIFT_VOL_POOL="${MICROSHIFT_VOL_POOL:-default}"
 
 
 KICKSTART_FILE=$(mktemp "/tmp/kickstart-${VMNAME}-XXXXX.ks")
-cat < "${ROOTDIR}/config/kickstart.ks.template" | \
+cat < "${ROOTDIR}/config/kickstartfedora.ks.template" | \
     sed "s;REPLACE_HOST_NAME;${VMNAME};" | \
     sed "s;REPLACE_SWAP_SIZE;${SWAPSIZE};" | \
     sed "s;REPLACE_LVM_SYSROOT_SIZE;${SYSROOTSIZE};" > "${KICKSTART_FILE}"
