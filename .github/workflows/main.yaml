@@ -30,15 +30,15 @@ jobs:
         shell: bash
         run: |
           # /dev/sdb1  is mounted as /mnt - disk space needed for the podman build containers layers.
-          mkdir -p /mnt/tmp
-          chown 1001:127 /mnt/tmp
+          sudo mkdir -p /mnt/tmp
+          sudo chown 1001:127 /mnt/tmp
           
           cd ${GITHUB_WORKSPACE}
           mkdir output
-          apt-get install podman -y
+          sudo apt-get install podman -y
 
           # podman version applies bad ulimits default causing "too many open files" errors so we override ulimits.
-          TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 \
+          sudo TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 \
                                        --build-arg OKD_VERSION_TAG=${{ inputs.okd-version }} \
                                        --env WITH_FLANNEL=1 \
                                        -f okd/src/microshift-okd-build-rpms.Containerfile \
