@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           cd ${GITHUB_WORKSPACE}
-          sudo podman build --env WITH_FLANNEL=1 -f okd/src/microshift-okd-run.Containerfile -v $(pwd)/output/:/tmp/rpm-repo:z . -t microshift-okd
+          podman build --env WITH_FLANNEL=1 -f okd/src/microshift-okd-run.Containerfile -v $(pwd)/output/:/tmp/rpm-repo:z . -t microshift-okd
 
 
       - name: run Microshift container with sudo
@@ -65,4 +65,4 @@ jobs:
           sudo podman run --privileged --rm --name microshift-okd -d microshift-okd
           sleep 3
           # wait until everything is running
-          sudo podman exec -ti microshift-okd bash -c '/etc/greenboot/check/required.d/40_microshift_running_check.sh && oc get pods -A'
+          podman exec -ti microshift-okd bash -c '/etc/greenboot/check/required.d/40_microshift_running_check.sh && oc get pods -A'
