@@ -69,4 +69,8 @@ virt-install \
     --graphics vnc,listen=0.0.0.0 \
     --noautoconsole \
     --wait \
+    --arch aarch64 \
+    --cpu cortex-a57 \
 "
+
+
