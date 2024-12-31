@@ -14,7 +14,7 @@ RUN useradd -m -s /bin/bash microshift -d /microshift && \
 COPY . /src 
 RUN chown -R microshift:microshift /microshift /src
 
-SER 1000:1000
+USER 1000:1000
 WORKDIR /src
 # Preparing for the build
 RUN echo '{"auths":{"fake":{"auth":"aWQ6cGFzcwo="}}}' > /tmp/.pull-secret && \
