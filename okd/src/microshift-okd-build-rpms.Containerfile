@@ -4,7 +4,7 @@ FROM quay.io/centos-bootc/centos-bootc:stream9 as builder
 ARG OKD_REPO=quay.io/okd/scos-release
 ARG OKD_VERSION_TAG=4.17.0-0.okd-scos-2024-08-21-100712
 ENV USER=microshift
-ENV HOME=/microshift
+#ENV HOME=/microshift
 ENV GOPATH=/microshift
 ENV GOMODCACHE=/microshift/.cache
 
@@ -14,7 +14,7 @@ RUN useradd -m -s /bin/bash microshift -d /microshift && \
 COPY . /src 
 RUN chown -R microshift:microshift /microshift /src
 
-USER 1000:1000
+#USER 1000:1000
 WORKDIR /src
 # Preparing for the build
 RUN echo '{"auths":{"fake":{"auth":"aWQ6cGFzcwo="}}}' > /tmp/.pull-secret && \
